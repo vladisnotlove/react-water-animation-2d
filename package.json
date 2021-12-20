@@ -1,6 +1,6 @@
 {
   "name": "react-water-animation-2d",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Wrapper of water-animation-2d for React",
   "main": "./dist/index.js",
   "scripts": {
@@ -25,7 +25,10 @@
   },
   "homepage": "https://github.com/vladisnotlove/react-water-animation-2d#readme",
   "dependencies": {
-    "react": "^17.0.2"
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "react": "^17.0.2",
+    "water-animation-2d": "^0.2.2"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.4.0",
