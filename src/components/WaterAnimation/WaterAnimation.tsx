@@ -1,14 +1,17 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 
-// Components
+import Canvas from "../Canvas";
+import {WaterAnimation2d} from "water-animation-2d";
+import { throttle } from "throttle-debounce";
 
-// Stores, utils, libs
-import { WaterAnimation2d } from "water-animation-2d";
 
-// CSS
+export type TControl = {
+    setWaterAnimation: React.Dispatch<React.SetStateAction<WaterAnimation2d | null>>
+}
 
-type WaterAnimationProps = {
+export type WaterAnimationProps = {
     className?: string,
+    control?: TControl,
     upperColor?: string,
     bottomColor?: string,
     deltaTime?: number,
@@ -18,12 +21,13 @@ type WaterAnimationProps = {
     surfaceActivity?: number,
     surfaceMinSpaceBetween?: number,
     surfaceSmoothness?: number,
-    autoFit?: boolean,
+    fullWidth?: boolean,
 }
 
 const WaterAnimation: React.FC<WaterAnimationProps> = (
     {
         className,
+        control,
         upperColor,
         bottomColor,
         deltaTime,
@@ -33,65 +37,67 @@ const WaterAnimation: React.FC<WaterAnimationProps> = (
         surfaceActivity,
         surfaceMinSpaceBetween,
         surfaceSmoothness,
-        autoFit,
+        fullWidth,
     }
 ) => {
-    const waterAnimRef = useRef<WaterAnimation2d | null>(null);
-    const [canvas, setCanvas] = useState<HTMLCanvasElement>();
-    const canvasRef = useRef<HTMLCanvasElement>();
+    const [waterAnimation, setWaterAnimation] = useState<WaterAnimation2d | null>(null);
 
-    useEffect(() => {
-        if (waterAnimRef.current) {
-            waterAnimRef.current.stop();
-        }
-        waterAnimRef.current = new WaterAnimation2d(canvas);
-    }, [canvas]);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-    useEffect(() => {
-        if (!waterAnimRef.current) return;
-        if (autoFit) {
-            waterAnimRef.current.beforeUpdate = () => {
-                canvasRef.current.width = canvasRef.current.clientWidth;
-                canvasRef.current.height = canvasRef.current.clientHeight;
+    const resetWaterAnimation = useCallback((node: HTMLCanvasElement | null) => {
+        if (node) {
+            const newWaterAnimation = new WaterAnimation2d(node);
+            const callback = (prev: WaterAnimation2d | null) => {
+                if (prev) {
+                    prev.stop();
+                }
+                return newWaterAnimation;
             }
+            setWaterAnimation(callback)
+            if (control) control.setWaterAnimation(callback);
         }
-        else {
-            waterAnimRef.current.beforeUpdate = undefined;
-        }
-    }, [autoFit])
+    }, []);
 
     useEffect(() => {
-        if (waterAnimRef.current) {
-            const waterAnim = waterAnimRef.current;
-
-            if (waterAnim.upperColor !== upperColor)
-                waterAnim.upperColor = upperColor;
-
-            if (waterAnim.bottomColor !== bottomColor)
-                waterAnim.bottomColor = bottomColor;
-
-            if (waterAnim.deltaTime !== deltaTime)
-                waterAnim.deltaTime = deltaTime;
-
-            if (waterAnim.surfaceTension !== surfaceTension)
-                waterAnim.surfaceTension = surfaceTension;
-
-            if (waterAnim.surfaceDensity !== surfaceDensity)
-                waterAnim.surfaceDensity = surfaceDensity;
-
-            if (waterAnim.surfaceToughness !== surfaceToughness)
-                waterAnim.surfaceToughness = surfaceToughness;
-
-            if (waterAnim.surfaceActivity !== surfaceActivity)
-                waterAnim.surfaceActivity = surfaceActivity;
-
-            if (waterAnim.surfaceMinSpaceBetween !== surfaceMinSpaceBetween)
-                waterAnim.surfaceMinSpaceBetween = surfaceMinSpaceBetween;
-
-            if (waterAnim.surfaceSmoothness !== surfaceSmoothness)
-                waterAnim.surfaceSmoothness = surfaceSmoothness;
+        if (waterAnimation) {
+            waterAnimation.run();
+            console.log(waterAnimation);
         }
     }, [
+        waterAnimation
+    ])
+
+    useEffect(() => {
+        if (waterAnimation) {
+            if (waterAnimation.upperColor !== upperColor && upperColor)
+                waterAnimation.upperColor = upperColor;
+
+            if (waterAnimation.bottomColor !== bottomColor && bottomColor)
+                waterAnimation.bottomColor = bottomColor;
+
+            if (waterAnimation.deltaTime !== deltaTime && deltaTime)
+                waterAnimation.deltaTime = deltaTime;
+
+            if (waterAnimation.surfaceTension !== surfaceTension && surfaceTension)
+                waterAnimation.surfaceTension = surfaceTension;
+
+            if (waterAnimation.surfaceDensity !== surfaceDensity && surfaceDensity)
+                waterAnimation.surfaceDensity = surfaceDensity;
+
+            if (waterAnimation.surfaceToughness !== surfaceToughness && surfaceToughness)
+                waterAnimation.surfaceToughness = surfaceToughness;
+
+            if (waterAnimation.surfaceActivity !== surfaceActivity && surfaceActivity)
+                waterAnimation.surfaceActivity = surfaceActivity;
+
+            if (waterAnimation.surfaceMinSpaceBetween !== surfaceMinSpaceBetween && surfaceMinSpaceBetween)
+                waterAnimation.surfaceMinSpaceBetween = surfaceMinSpaceBetween;
+
+            if (waterAnimation.surfaceSmoothness !== surfaceSmoothness && surfaceSmoothness)
+                waterAnimation.surfaceSmoothness = surfaceSmoothness;
+        }
+    }, [
+        waterAnimation,
         upperColor,
         bottomColor,
         deltaTime,
@@ -103,12 +109,27 @@ const WaterAnimation: React.FC<WaterAnimationProps> = (
         surfaceSmoothness,
     ]);
 
-    return <canvas
-        ref={(node) => {
-            setCanvas(node);
-            canvasRef.current = node;
-        }}
+    const onRefChange = useCallback((node) => {
+        if (node !== canvasRef.current) { // check if canvas changed
+            resetWaterAnimation(node);
+        }
+        canvasRef.current = node;
+    }, []);
+
+    const onResize = useCallback(throttle(200, () => {
+        resetWaterAnimation(canvasRef.current);
+    }), [])
+
+    return <Canvas
+        ref={onRefChange}
         className={className}
+        autoFit
+        onResize={onResize}
+        style={{
+            ...(fullWidth && {
+                width: "100%",
+            })
+        }}
     />
 }
 
