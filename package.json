@@ -1,6 +1,6 @@
 {
   "name": "react-water-animation-2d",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Wrapper of water-animation-2d for React",
   "main": "./dist/index.js",
   "files": [
