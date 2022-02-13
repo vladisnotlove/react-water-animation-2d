@@ -61,7 +61,6 @@ const WaterAnimation: React.FC<WaterAnimationProps> = (
     useEffect(() => {
         if (waterAnimation) {
             waterAnimation.run();
-            console.log(waterAnimation);
         }
     }, [
         waterAnimation
