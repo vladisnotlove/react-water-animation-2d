@@ -39,3 +39,12 @@ const Example = () => {
     </div>
 }
 ```
+
+## Author
+
+Vladislav Nikolaev, *react frontend developer*
+
+vlad.nikolaev@gmail.com<br/>
+<a href="https://t.me/vladisnotlove">telegram</a> |
+<a href="https://gitlab.com/vladisnotlove">gitlab</a> |
+<a href="https://github.com/vladisnotlove">github</a>
