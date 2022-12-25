@@ -2,6 +2,12 @@
 
 Wrapper of water-animation-2d for React
 
+## Install 
+
+```shell
+npm i water-animation-2d
+```
+
 ## How to use?
 
 For animation you need both "WaterAnimation" and "useWaterAnimationManager"
@@ -44,7 +50,7 @@ const Example = () => {
 
 Vladislav Nikolaev, *react frontend developer*
 
-vlad.nikolaev@gmail.com<br/>
+vladisnotlove@gmail.com<br/>
 <a href="https://t.me/vladisnotlove">telegram</a> |
 <a href="https://gitlab.com/vladisnotlove">gitlab</a> |
 <a href="https://github.com/vladisnotlove">github</a>
